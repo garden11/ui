@@ -1,0 +1,17 @@
+export const colors = {
+  primary900: "#1C1C1C",
+  neutral100: "#F2F2F2",
+  neutral0: "#ffffff",
+  neutral500: "#999999",
+  gray200: "#eeeeee",
+  gray400: "#d4d4d4",
+  gray600: "#aaaaaa",
+  gray800: "#7a7a7a",
+  bold900: "#20232e",
+  error500: "#c91b1b",
+  warning500: "#FFD400",
+  info500: "#4158d0",
+  disabled100: "#eeeef4",
+  disabled500: "#abb2b6",
+  digitalBlue500: "#4158d0",
+};
