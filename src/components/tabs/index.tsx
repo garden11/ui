@@ -26,7 +26,7 @@ type PropsWithoutActiveKey = { activeKey?: never; defaultActiveKey: string };
 type Props = PropsDefualt & (PropsWithActiveKey | PropsWithoutActiveKey);
 
 const Tabs = ({ width = "auto", height = "500px", ...props }: Props) => {
-  const isControlled = !!props.activeKey;
+  const isControlled = Object.hasOwn(props, "activeKey");
 
   const [activeKey, setActiveKey] = useState<string | undefined>(
     props.defaultActiveKey
@@ -41,7 +41,9 @@ const Tabs = ({ width = "auto", height = "500px", ...props }: Props) => {
 
           !isControlled && setActiveKey(key);
         }}
-        activeKey={isControlled ? props.activeKey : (activeKey as string)}
+        activeKey={
+          isControlled ? (props.activeKey as string) : (activeKey as string)
+        }
       />
 
       {props.items.map((item) => (

@@ -11,9 +11,9 @@ import Input from "../input";
 
 import { PixelValue } from "src/types";
 
-type PropsWithValue = { value: string; defaultValue?: never };
+type PropsWithValue = { value: string | undefined; defaultValue?: never };
 
-type PropsWithoutValue = { value?: never; defaultValue?: string };
+type PropsWithoutValue = { value?: never; defaultValue?: string | undefined };
 
 type PropsDefault = {
   size?: "small" | "medium" | "large";
