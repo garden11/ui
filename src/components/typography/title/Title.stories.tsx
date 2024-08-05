@@ -8,7 +8,7 @@ const meta: Meta<typeof TitleComponent> = {
   parameters: { controls: { exclude: ["margin"] } },
   args: {
     level: 1,
-    children: "다람쥐 헌 챗바퀴에 타고파.",
+    children: "다람쥐 헌 쳇바퀴에 타고파.",
     whiteSpace: "normal",
     wordWrap: "normal",
     writingMode: "horizontal-tb",
