@@ -1,7 +1,8 @@
 import { css, SerializedStyles } from "@emotion/react";
 
-// styles
 import { toPixelString } from "./cssConverter";
+
+import { PixelValue } from "src/types";
 
 type Unit = 2 | 4 | 6 | 8 | 10 | 16 | 20 | 30 | 50 | 100 | 150;
 type Property = "x" | "y" | "top" | "right" | "bottom" | "left";
@@ -19,8 +20,8 @@ type Spacing = {
   unit100: Unit;
   unit150: Unit;
 
-  margin: ((value: number) => SerializedStyles) & {
-    top: (value: number) => SerializedStyles;
+  margin: ((value: PixelValue) => SerializedStyles) & {
+    top: (value: PixelValue) => SerializedStyles;
     top2: SerializedStyles;
     top4: SerializedStyles;
     top6: SerializedStyles;
@@ -33,7 +34,7 @@ type Spacing = {
     top100: SerializedStyles;
     top150: SerializedStyles;
 
-    bottom: (value: number) => SerializedStyles;
+    bottom: (value: PixelValue) => SerializedStyles;
     bottom2: SerializedStyles;
     bottom4: SerializedStyles;
     bottom6: SerializedStyles;
@@ -46,7 +47,7 @@ type Spacing = {
     bottom100: SerializedStyles;
     bottom150: SerializedStyles;
 
-    left: (value: number) => SerializedStyles;
+    left: (value: PixelValue) => SerializedStyles;
     left2: SerializedStyles;
     left4: SerializedStyles;
     left6: SerializedStyles;
@@ -59,7 +60,7 @@ type Spacing = {
     left100: SerializedStyles;
     left150: SerializedStyles;
 
-    right: (value: number) => SerializedStyles;
+    right: (value: PixelValue) => SerializedStyles;
     right2: SerializedStyles;
     right4: SerializedStyles;
     right6: SerializedStyles;
@@ -72,7 +73,7 @@ type Spacing = {
     right100: SerializedStyles;
     right150: SerializedStyles;
 
-    x: (value: number) => SerializedStyles;
+    x: (value: PixelValue) => SerializedStyles;
     x2: SerializedStyles;
     x4: SerializedStyles;
     x6: SerializedStyles;
@@ -85,7 +86,7 @@ type Spacing = {
     x100: SerializedStyles;
     x150: SerializedStyles;
 
-    y: (value: number) => SerializedStyles;
+    y: (value: PixelValue) => SerializedStyles;
     y2: SerializedStyles;
     y4: SerializedStyles;
     y6: SerializedStyles;
@@ -111,8 +112,8 @@ type Spacing = {
   margin100: SerializedStyles;
   margin150: SerializedStyles;
 
-  padding: ((value: number) => SerializedStyles) & {
-    top: (value: number) => SerializedStyles;
+  padding: ((value: PixelValue) => SerializedStyles) & {
+    top: (value: PixelValue) => SerializedStyles;
     top2: SerializedStyles;
     top4: SerializedStyles;
     top6: SerializedStyles;
@@ -125,7 +126,7 @@ type Spacing = {
     top100: SerializedStyles;
     top150: SerializedStyles;
 
-    bottom: (value: number) => SerializedStyles;
+    bottom: (value: PixelValue) => SerializedStyles;
     bottom2: SerializedStyles;
     bottom4: SerializedStyles;
     bottom6: SerializedStyles;
@@ -138,7 +139,7 @@ type Spacing = {
     bottom100: SerializedStyles;
     bottom150: SerializedStyles;
 
-    left: (value: number) => SerializedStyles;
+    left: (value: PixelValue) => SerializedStyles;
     left2: SerializedStyles;
     left4: SerializedStyles;
     left6: SerializedStyles;
@@ -151,7 +152,7 @@ type Spacing = {
     left100: SerializedStyles;
     left150: SerializedStyles;
 
-    right: (value: number) => SerializedStyles;
+    right: (value: PixelValue) => SerializedStyles;
     right2: SerializedStyles;
     right4: SerializedStyles;
     right6: SerializedStyles;
@@ -164,7 +165,7 @@ type Spacing = {
     right100: SerializedStyles;
     right150: SerializedStyles;
 
-    x: (value: number) => SerializedStyles;
+    x: (value: PixelValue) => SerializedStyles;
     x2: SerializedStyles;
     x4: SerializedStyles;
     x6: SerializedStyles;
@@ -177,7 +178,7 @@ type Spacing = {
     x100: SerializedStyles;
     x150: SerializedStyles;
 
-    y: (value: number) => SerializedStyles;
+    y: (value: PixelValue) => SerializedStyles;
     y2: SerializedStyles;
     y4: SerializedStyles;
     y6: SerializedStyles;
@@ -215,7 +216,7 @@ const getStyle = (
 ) => {
   // spacing.margin(5)
   if (!option) {
-    return (value: number) => css`
+    return (value: PixelValue) => css`
       ${`${marginOrPadding}: ${toPixelString(value)}`}
     `;
   }
@@ -255,7 +256,7 @@ const getStyle = (
       box = ["right"];
     }
 
-    return (value: number) => {
+    return (value: PixelValue) => {
       const style = box
         .map((dir) => `${marginOrPadding}-${dir}: ${toPixelString(value)}`)
         .join(";");
