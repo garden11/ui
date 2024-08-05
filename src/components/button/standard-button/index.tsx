@@ -3,7 +3,6 @@
 import { css } from "@emotion/react";
 import { ButtonHTMLAttributes, forwardRef } from "react";
 
-// styles
 import { colors } from "src/styles/colors";
 
 type Props = {

@@ -2,10 +2,8 @@
 
 import { css } from "@emotion/react";
 
-// types
 import { PixelValue } from "src/types";
 
-// utils
 import { toPixelString } from "src/utils/cssConverter";
 
 type Props = {
