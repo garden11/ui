@@ -7,7 +7,7 @@ const meta: Meta<typeof ParagraphComponent> = {
   component: ParagraphComponent,
   args: {
     copyable: true,
-    children: "다람쥐 헌 챗바퀴에 타고파.",
+    children: "다람쥐 헌 쳇바퀴에 타고파.",
   },
   argTypes: {
     copyable: { control: { type: "boolean" } },

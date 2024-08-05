@@ -6,7 +6,7 @@ const meta: Meta<typeof TextComponent> = {
   title: "components/Typography/Text",
   component: TextComponent,
   args: {
-    children: "다람쥐 헌 챗바퀴에 타고파.",
+    children: "다람쥐 헌 쳇바퀴에 타고파.",
     variant: "standard",
   },
   argTypes: {
