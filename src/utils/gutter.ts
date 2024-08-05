@@ -1,20 +1,21 @@
 import { css, SerializedStyles } from "@emotion/react";
 
-// styles
 import { toPixelString } from "./cssConverter";
 
+import { PixelValue } from "src/types";
+
 export const gutter: {
-  vertical: (spacing: number, selector?: string) => SerializedStyles;
-  horizontal: (spacing: number, selector?: string) => SerializedStyles;
+  vertical: (spacing: PixelValue, selector?: string) => SerializedStyles;
+  horizontal: (spacing: PixelValue, selector?: string) => SerializedStyles;
 } = {
-  vertical: (spacing: number, selector: string = "*:not(style)") => {
+  vertical: (spacing: PixelValue, selector: string = "*:not(style)") => {
     return css`
       & > ${selector} ~ ${selector} {
         margin-top: ${toPixelString(spacing)};
       }
     `;
   },
-  horizontal: (spacing: number, selector: string = "*:not(style)") => css`
+  horizontal: (spacing: PixelValue, selector: string = "*:not(style)") => css`
     & > ${selector} ~ ${selector} {
       margin-left: ${toPixelString(spacing)};
     }
