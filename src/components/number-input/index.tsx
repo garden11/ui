@@ -18,7 +18,7 @@ type PropsWithoutValue = { value?: never; defaultValue?: string | undefined };
 type PropsDefault = {
   size?: "small" | "medium" | "large";
   status?: "normal" | "warning" | "error";
-  onChange?: (value: string) => void;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   width?: PixelValue;
   height?: PixelValue;
   disabled?: boolean;
@@ -32,7 +32,7 @@ type Props = PropsDefault & (PropsWithValue | PropsWithoutValue);
 const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const isControlled = Object.hasOwn(props, "value");
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const valueInputRef = useRef<HTMLInputElement | null>(null);
 
   const initialDisplayValue: string = (() => {
     if (isControlled) {
@@ -51,67 +51,43 @@ const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const [displayValue, setDisplayValue] = useState<string>(initialDisplayValue);
 
   useEffect(() => {
-    if (isControlled) return;
+    const valueInput = valueInputRef.current;
 
-    const input = inputRef.current;
+    if (!valueInput || !isControlled) return;
 
-    if (displayValue !== undefined && input) {
-      input.value = toValue(displayValue);
-      input.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-  }, [displayValue]);
-
-  useEffect(() => {
-    if (!isControlled) return;
-
-    props.onChange?.(toValue(displayValue));
-  }, [displayValue]);
-
-  useEffect(() => {
-    isControlled &&
-      setDisplayValue(props.value ? toDisplayValue(props.value) : "");
+    valueInput.value = props.value ?? "";
+    valueInput.dispatchEvent(new Event("change", { bubbles: true }));
   }, [props.value]);
 
   useEffect(() => {
-    const input = inputRef.current;
+    const valueInput = valueInputRef.current;
 
-    if (isControlled || !input) return;
+    if (!valueInput) return;
 
-    input.addEventListener("change", (event) =>
-      props?.onChange?.(
-        (event as unknown as ChangeEvent<HTMLInputElement>).target.value
-      )
-    );
+    valueInput.addEventListener("change", (event) => {
+      props?.onChange?.(event as unknown as ChangeEvent<HTMLInputElement>);
+
+      setDisplayValue(
+        toDisplayValue(
+          (event as unknown as ChangeEvent<HTMLInputElement>).target.value
+        )
+      );
+    });
   }, []);
 
-  const {
-    width,
-    height,
-    size,
-    status,
-    value,
-    placeholder,
-    onChange,
-    readOnly,
-    hidden,
-    disabled,
-    ...restProps
-  } = props;
+  const { value, onChange, name, ...restProps } = props;
 
   return (
     <span>
       <Input
         style={{ textAlign: "right" }}
-        placeholder={placeholder}
         value={displayValue}
-        size={size}
-        status={status}
-        width={width}
-        height={height}
-        readOnly={readOnly}
-        hidden={hidden}
-        disabled={disabled}
+        {...restProps}
         onChange={(event) => {
+          const valueInput = valueInputRef.current;
+
+          if (!valueInput) return;
+
           let newValue: string = toValue(event.target.value);
 
           const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
@@ -149,26 +125,25 @@ const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
             return;
           }
 
-          setDisplayValue(toDisplayValue(newValue));
+          valueInput.value = newValue;
+          valueInput.dispatchEvent(new Event("change", { bubbles: true }));
         }}
       />
 
-      {!isControlled && (
-        <input
-          ref={(node) => {
-            inputRef.current = node;
+      <input
+        ref={(node) => {
+          valueInputRef.current = node;
 
-            if (typeof ref === "function") {
-              ref(node);
-            } else if (ref) {
-              ref.current = node;
-            }
-          }}
-          {...restProps}
-          readOnly
-          hidden
-        />
-      )}
+          if (typeof ref === "function") {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
+        name={name}
+        readOnly
+        hidden
+      />
     </span>
   );
 });
