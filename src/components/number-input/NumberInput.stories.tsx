@@ -1,8 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useRef, useState } from "react";
 import { fn } from "@storybook/test";
 
+import Button from "../button";
 import NumberInputComponent from ".";
+import Stack from "../stack";
+
+import { spacing } from "src/utils/spacing";
+import { NumberInputHandle } from "./types";
 
 const meta: Meta<typeof NumberInputComponent> = {
   title: "components/NumberInput",
@@ -72,7 +77,29 @@ const ControlledStoryComponent = (
 const UncontrolledStoryComponent = (
   args: ComponentProps<typeof NumberInputComponent>
 ) => {
-  const { value, ...restArgs } = args;
+  const inputRef = useRef<NumberInputHandle | null>(null);
 
-  return <NumberInputComponent {...restArgs} />;
+  const [value, setValue] = useState<string>();
+
+  const { value: argsValue, ...restArgs } = args;
+
+  return (
+    <>
+      <Stack direction="horizontal" spacing={spacing.unit10}>
+        <NumberInputComponent ref={inputRef} {...restArgs} />
+        <Button
+          onClick={(event) => {
+            setValue(inputRef.current?.value);
+
+            if (!inputRef.current?.value) {
+              inputRef.current?.focus();
+            }
+          }}
+        >
+          SUBMIT
+        </Button>
+      </Stack>
+      value: {value}
+    </>
+  );
 };
