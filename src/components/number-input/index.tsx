@@ -32,7 +32,7 @@ type Props = PropsDefault & (PropsWithValue | PropsWithoutValue);
 const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const isControlled = Object.hasOwn(props, "value");
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const valueInputRef = useRef<HTMLInputElement | null>(null);
 
   const initialDisplayValue: string = (() => {
     if (isControlled) {
@@ -53,11 +53,10 @@ const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   useEffect(() => {
     if (isControlled) return;
 
-    const input = inputRef.current;
-
-    if (displayValue !== undefined && input) {
-      input.value = toValue(displayValue);
-      input.dispatchEvent(new Event("change", { bubbles: true }));
+    const valueInput = valueInputRef.current;
+    if (displayValue !== undefined && valueInput) {
+      valueInput.value = toValue(displayValue);
+      valueInput.dispatchEvent(new Event("change", { bubbles: true }));
     }
   }, [displayValue]);
 
@@ -73,44 +72,25 @@ const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   }, [props.value]);
 
   useEffect(() => {
-    const input = inputRef.current;
+    const valueInput = valueInputRef.current;
 
-    if (isControlled || !input) return;
+    if (isControlled || !valueInput) return;
 
-    input.addEventListener("change", (event) =>
+    valueInput.addEventListener("change", (event) =>
       props?.onChange?.(
         (event as unknown as ChangeEvent<HTMLInputElement>).target.value
       )
     );
   }, []);
 
-  const {
-    width,
-    height,
-    size,
-    status,
-    value,
-    placeholder,
-    onChange,
-    readOnly,
-    hidden,
-    disabled,
-    ...restProps
-  } = props;
+  const { value, onChange, name, ...restProps } = props;
 
   return (
     <span>
       <Input
         style={{ textAlign: "right" }}
-        placeholder={placeholder}
         value={displayValue}
-        size={size}
-        status={status}
-        width={width}
-        height={height}
-        readOnly={readOnly}
-        hidden={hidden}
-        disabled={disabled}
+        {...restProps}
         onChange={(event) => {
           let newValue: string = toValue(event.target.value);
 
@@ -153,22 +133,20 @@ const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
         }}
       />
 
-      {!isControlled && (
-        <input
-          ref={(node) => {
-            inputRef.current = node;
+      <input
+        ref={(node) => {
+          valueInputRef.current = node;
 
-            if (typeof ref === "function") {
-              ref(node);
-            } else if (ref) {
-              ref.current = node;
-            }
-          }}
-          {...restProps}
-          readOnly
-          hidden
-        />
-      )}
+          if (typeof ref === "function") {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
+        name={name}
+        readOnly
+        hidden
+      />
     </span>
   );
 });
