@@ -18,7 +18,7 @@ type PropsWithoutValue = { value?: never; defaultValue?: string | undefined };
 type PropsDefault = {
   size?: "small" | "medium" | "large";
   status?: "normal" | "warning" | "error";
-  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (value: string) => void;
   width?: PixelValue;
   height?: PixelValue;
   disabled?: boolean;
@@ -32,7 +32,7 @@ type Props = PropsDefault & (PropsWithValue | PropsWithoutValue);
 const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const isControlled = Object.hasOwn(props, "value");
 
-  const valueInputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const initialDisplayValue: string = (() => {
     if (isControlled) {
@@ -51,43 +51,67 @@ const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const [displayValue, setDisplayValue] = useState<string>(initialDisplayValue);
 
   useEffect(() => {
-    const valueInput = valueInputRef.current;
+    if (isControlled) return;
 
-    if (!valueInput || !isControlled) return;
+    const input = inputRef.current;
 
-    valueInput.value = props.value ?? "";
-    valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+    if (displayValue !== undefined && input) {
+      input.value = toValue(displayValue);
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }, [displayValue]);
+
+  useEffect(() => {
+    if (!isControlled) return;
+
+    props.onChange?.(toValue(displayValue));
+  }, [displayValue]);
+
+  useEffect(() => {
+    isControlled &&
+      setDisplayValue(props.value ? toDisplayValue(props.value) : "");
   }, [props.value]);
 
   useEffect(() => {
-    const valueInput = valueInputRef.current;
+    const input = inputRef.current;
 
-    if (!valueInput) return;
+    if (isControlled || !input) return;
 
-    valueInput.addEventListener("change", (event) => {
-      props?.onChange?.(event as unknown as ChangeEvent<HTMLInputElement>);
-
-      setDisplayValue(
-        toDisplayValue(
-          (event as unknown as ChangeEvent<HTMLInputElement>).target.value
-        )
-      );
-    });
+    input.addEventListener("change", (event) =>
+      props?.onChange?.(
+        (event as unknown as ChangeEvent<HTMLInputElement>).target.value
+      )
+    );
   }, []);
 
-  const { value, onChange, name, ...restProps } = props;
+  const {
+    width,
+    height,
+    size,
+    status,
+    value,
+    placeholder,
+    onChange,
+    readOnly,
+    hidden,
+    disabled,
+    ...restProps
+  } = props;
 
   return (
     <span>
       <Input
         style={{ textAlign: "right" }}
+        placeholder={placeholder}
         value={displayValue}
-        {...restProps}
+        size={size}
+        status={status}
+        width={width}
+        height={height}
+        readOnly={readOnly}
+        hidden={hidden}
+        disabled={disabled}
         onChange={(event) => {
-          const valueInput = valueInputRef.current;
-
-          if (!valueInput) return;
-
           let newValue: string = toValue(event.target.value);
 
           const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
@@ -125,25 +149,26 @@ const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
             return;
           }
 
-          valueInput.value = newValue;
-          valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+          setDisplayValue(toDisplayValue(newValue));
         }}
       />
 
-      <input
-        ref={(node) => {
-          valueInputRef.current = node;
+      {!isControlled && (
+        <input
+          ref={(node) => {
+            inputRef.current = node;
 
-          if (typeof ref === "function") {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-        }}
-        name={name}
-        readOnly
-        hidden
-      />
+            if (typeof ref === "function") {
+              ref(node);
+            } else if (ref) {
+              ref.current = node;
+            }
+          }}
+          {...restProps}
+          readOnly
+          hidden
+        />
+      )}
     </span>
   );
 });
