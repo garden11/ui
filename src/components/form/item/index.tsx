@@ -15,7 +15,17 @@ import { PixelValue } from "src/types";
 import { toPixelString } from "src/utils/cssConverter";
 import { spacing } from "src/utils/spacing";
 
-type Props = {
+type PropsWithName = {
+  name?: string;
+  labelFor?: never;
+};
+
+type PropsWithoutName = {
+  name?: never;
+  labelFor?: string;
+};
+
+type PropsDefault = {
   variant?: "vertical" | "horizontal";
   width?: PixelValue;
   labelWidth?: PixelValue;
@@ -25,6 +35,8 @@ type Props = {
   status?: "normal" | "warning" | "error";
   children: ReactNode;
 };
+
+type Props = PropsDefault & (PropsWithName | PropsWithoutName);
 
 const Item = ({ status = "normal", ...props }: Props) => {
   const form = useContext(Context);
@@ -49,6 +61,14 @@ const Item = ({ status = "normal", ...props }: Props) => {
           childProps["status"] = status;
         }
 
+        if (!("name" in childProps)) {
+          childProps["name"] = props.name;
+
+          if (!("id" in childProps)) {
+            childProps["id"] = props.name;
+          }
+        }
+
         return React.cloneElement(child, childProps);
       }
       return child;
@@ -70,7 +90,9 @@ const Item = ({ status = "normal", ...props }: Props) => {
         })}
         spacing={spacing.unit2}
       >
-        {props.label && <label>{props.label}</label>}
+        {props.label && (
+          <label htmlFor={props.name ?? props.labelFor}>{props.label}</label>
+        )}
         <Stack
           direction="vertical"
           className={cx("input-hint")}
@@ -93,7 +115,9 @@ const Item = ({ status = "normal", ...props }: Props) => {
       })}
       alignItems="baseline"
     >
-      {props.label && <label>{props.label}</label>}
+      {props.label && (
+        <label htmlFor={props.name ?? props.labelFor}>{props.label}</label>
+      )}
       <Stack
         direction="vertical"
         className={cx("input-hint")}
