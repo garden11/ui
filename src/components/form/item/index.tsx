@@ -39,17 +39,17 @@ const Item = ({ status = "normal", ...props }: Props) => {
   const createChildren = (children: ReactNode) => {
     return React.Children.map(children, (child) => {
       if (React.isValidElement(child)) {
-        const props = { ...child.props };
+        const childProps = { ...child.props };
 
-        if (!("size" in props)) {
-          props["size"] = size;
+        if (!("size" in childProps)) {
+          childProps["size"] = size;
         }
 
-        if (!("status" in props)) {
-          props["status"] = status;
+        if (!("status" in childProps)) {
+          childProps["status"] = status;
         }
 
-        return React.cloneElement(child, props);
+        return React.cloneElement(child, childProps);
       }
       return child;
     });
