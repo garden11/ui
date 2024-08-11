@@ -3,7 +3,6 @@ import {
   forwardRef,
   InputHTMLAttributes,
   useEffect,
-  useImperativeHandle,
   useRef,
   useState,
 } from "react";
@@ -11,7 +10,6 @@ import {
 import Input from "../input";
 
 import { PixelValue } from "src/types";
-import { NumberInputHandle as Handle } from "./types";
 
 type PropsWithValue = { value: string | undefined; defaultValue?: never };
 
@@ -31,10 +29,9 @@ type PropsDefault = {
 
 type Props = PropsDefault & (PropsWithValue | PropsWithoutValue);
 
-const NumberInput = forwardRef<Handle, Props>((props, ref) => {
+const NumberInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const isControlled = Object.hasOwn(props, "value");
 
-  const displayInputRef = useRef<HTMLInputElement>(null);
   const valueInputRef = useRef<HTMLInputElement | null>(null);
 
   const initialDisplayValue: string = (() => {
@@ -78,29 +75,11 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
     });
   }, []);
 
-  useImperativeHandle(ref, () => {
-    return {
-      focus() {
-        displayInputRef.current?.focus();
-      },
-      scrollIntoView() {
-        displayInputRef.current?.scrollIntoView();
-      },
-      select() {
-        displayInputRef.current?.select();
-      },
-      get value() {
-        return valueInputRef.current?.value;
-      },
-    };
-  }, []);
-
   const { value, onChange, name, ...restProps } = props;
 
   return (
     <span>
       <Input
-        ref={displayInputRef}
         style={{ textAlign: "right" }}
         value={displayValue}
         {...restProps}
@@ -111,11 +90,11 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
 
           let newValue: string = toValue(event.target.value);
 
-          if (event.target.value === "-") {
-            newValue = String(0);
-          }
-
           const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
+
+          if (newValue === "" || newValue === "-") {
+            return setDisplayValue("");
+          }
 
           if (!isNagative) {
             newValue = newValue.replaceAll("-", "");
@@ -136,15 +115,13 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
             return;
           }
 
-          if (newValue !== "") {
-            newValue =
-              (isNagative ? "-" : "") +
-              (decimalPart === undefined
-                ? absoluteIntegerPart
-                : absoluteIntegerPart + "." + decimalPart);
-          }
+          newValue =
+            (isNagative ? "-" : "") +
+            (decimalPart === undefined
+              ? absoluteIntegerPart
+              : absoluteIntegerPart + "." + decimalPart);
 
-          if (newValue !== "" && isNaN(Number(toValue(newValue)))) {
+          if (isNaN(Number(toValue(newValue)))) {
             return;
           }
 
@@ -153,7 +130,20 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
         }}
       />
 
-      <input ref={valueInputRef} name={name} readOnly hidden />
+      <input
+        ref={(node) => {
+          valueInputRef.current = node;
+
+          if (typeof ref === "function") {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
+        name={name}
+        readOnly
+        hidden
+      />
     </span>
   );
 });
