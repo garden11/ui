@@ -34,13 +34,13 @@ export const Form: Story = {
   render: (args) => (
     <FormComponent {...args}>
       <Stack direction="vertical" spacing={spacing.unit20}>
-        <FormComponent.Item label="FormItem1">
+        <FormComponent.Item label="FormItem1" name="item1">
           <Input placeholder="Input1" width={args.itemWidth ?? "100%"} />
         </FormComponent.Item>
-        <FormComponent.Item label="FormItem2">
+        <FormComponent.Item label="FormItem2" name="item2">
           <Input placeholder="Input2" width={args.itemWidth ?? "100%"} />
         </FormComponent.Item>
-        <FormComponent.Item label="FormItem3">
+        <FormComponent.Item label="FormItem3" name="item3">
           <Input placeholder="Input3" width={args.itemWidth ?? "100%"} />
         </FormComponent.Item>
       </Stack>
