@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { ComponentProps } from "react";
 
 import ItemComponent from ".";
 import Input from "src/components/input";
@@ -6,8 +7,9 @@ import Input from "src/components/input";
 const meta: Meta<typeof ItemComponent> = {
   title: "components/Form/Item",
   component: ItemComponent,
-  parameters: { controls: { exclude: ["children"] } },
+  parameters: { controls: { exclude: ["children", "name"] } },
   args: {
+    name: "item",
     variant: "vertical",
     label: "FormItem1",
     hint: "내용을 입력해 주세요.",
@@ -38,9 +40,15 @@ export default meta;
 type Story = StoryObj<typeof ItemComponent>;
 
 export const Item: Story = {
-  render: (args) => (
-    <ItemComponent {...args}>
+  render: (args) => <ItemStoryComponent {...args} />,
+};
+
+const ItemStoryComponent = (args: ComponentProps<typeof ItemComponent>) => {
+  const { labelFor, name, ...restArgs } = args;
+
+  return (
+    <ItemComponent name={name} {...restArgs}>
       <Input placeholder="Input" width={args.width ? "100%" : "auto"} />
     </ItemComponent>
-  ),
+  );
 };
