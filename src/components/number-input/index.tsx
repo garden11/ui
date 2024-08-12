@@ -37,21 +37,19 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
   const displayInputRef = useRef<HTMLInputElement>(null);
   const valueInputRef = useRef<HTMLInputElement | null>(null);
 
-  const initialDisplayValue: string = (() => {
-    if (isControlled) {
-      if (!props.value) return "";
+  const [displayValue, setDisplayValue] = useState<string>("");
 
-      return isNaN(Number(props.value)) ? "" : toDisplayValue(props.value);
+  useEffect(() => {
+    if (isControlled) return;
+
+    const valueInput = valueInputRef.current;
+
+    if (valueInput?.defaultValue) {
+      setDisplayValue(toDisplayValue(valueInput.defaultValue));
     } else {
-      if (!props.defaultValue) return "";
-
-      return isNaN(Number(props.defaultValue))
-        ? ""
-        : toDisplayValue(props.defaultValue as string);
+      setDisplayValue("");
     }
-  })();
-
-  const [displayValue, setDisplayValue] = useState<string>(initialDisplayValue);
+  }, []);
 
   useEffect(() => {
     const valueInput = valueInputRef.current;
@@ -153,7 +151,18 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
         }}
       />
 
-      <input ref={valueInputRef} name={name} readOnly hidden />
+      <input
+        ref={valueInputRef}
+        name={name}
+        {...(!isControlled && {
+          defaultValue:
+            props.defaultValue && !isNaN(Number(props.defaultValue))
+              ? props.defaultValue
+              : undefined,
+        })}
+        readOnly
+        hidden
+      />
     </span>
   );
 });
