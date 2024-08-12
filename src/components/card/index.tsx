@@ -37,7 +37,7 @@ const styles = {
     height: ${toPixelString(height)};
     box-sizing: border-box;
     background-color: ${colors.neutral0};
-    border-radius: 15px;
+    /* border-radius: 15px; */
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
     ${spacing.padding20};
   `,
