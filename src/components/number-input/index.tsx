@@ -35,7 +35,7 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
   const isControlled = Object.hasOwn(props, "value");
 
   const displayInputRef = useRef<HTMLInputElement>(null);
-  const valueInputRef = useRef<HTMLInputElement | null>(null);
+  const valueInputRef = useRef<HTMLInputElement>(null);
 
   const [displayValue, setDisplayValue] = useState<string>("");
 
@@ -52,9 +52,11 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
   }, []);
 
   useEffect(() => {
+    if (!isControlled) return;
+
     const valueInput = valueInputRef.current;
 
-    if (!valueInput || !isControlled) return;
+    if (!valueInput) return;
 
     valueInput.value = props.value ?? "";
     valueInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -101,11 +103,17 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
         ref={displayInputRef}
         style={{ textAlign: "right" }}
         value={displayValue}
-        {...restProps}
         onChange={(event) => {
           const valueInput = valueInputRef.current;
 
           if (!valueInput) return;
+
+          if (event.target.value === "") {
+            valueInput.value = "";
+            valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+            return;
+          }
 
           let newValue: string = toValue(event.target.value);
 
@@ -134,21 +142,20 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
             return;
           }
 
-          if (newValue !== "") {
-            newValue =
-              (isNagative ? "-" : "") +
-              (decimalPart === undefined
-                ? absoluteIntegerPart
-                : absoluteIntegerPart + "." + decimalPart);
-          }
+          newValue =
+            (isNagative ? "-" : "") +
+            (decimalPart === undefined
+              ? absoluteIntegerPart
+              : absoluteIntegerPart + "." + decimalPart);
 
-          if (newValue !== "" && isNaN(Number(toValue(newValue)))) {
+          if (isNaN(Number(toValue(newValue)))) {
             return;
           }
 
           valueInput.value = newValue;
           valueInput.dispatchEvent(new Event("change", { bubbles: true }));
         }}
+        {...restProps}
       />
 
       <input
