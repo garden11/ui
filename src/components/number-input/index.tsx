@@ -2,6 +2,7 @@ import {
   ChangeEvent,
   forwardRef,
   InputHTMLAttributes,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -95,6 +96,62 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
     };
   }, []);
 
+  const handleChangeDisplayInput = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const valueInput = valueInputRef.current;
+
+      if (!valueInput) return;
+
+      if (event.target.value === "") {
+        valueInput.value = "";
+        valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+        return;
+      }
+
+      let newValue: string = toValue(event.target.value);
+
+      if (event.target.value === "-") {
+        newValue = String(0);
+      }
+
+      const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
+
+      if (!isNagative) {
+        newValue = newValue.replaceAll("-", "");
+      } else {
+        newValue = "-" + newValue.replaceAll("-", "");
+      }
+
+      let absoluteIntegerPart = String(
+        Math.abs(Number(newValue.split(".")[0]))
+      );
+
+      const decimalPart = newValue.split(".")[1];
+
+      if (
+        absoluteIntegerPart.length > 15 ||
+        (decimalPart && decimalPart.length > 15)
+      ) {
+        return;
+      }
+
+      newValue =
+        (isNagative ? "-" : "") +
+        (decimalPart === undefined
+          ? absoluteIntegerPart
+          : absoluteIntegerPart + "." + decimalPart);
+
+      if (isNaN(Number(toValue(newValue)))) {
+        return;
+      }
+
+      valueInput.value = newValue;
+      valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+    },
+    []
+  );
+
   const { value, onChange, name, ...restProps } = props;
 
   return (
@@ -103,58 +160,7 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
         ref={displayInputRef}
         style={{ textAlign: "right" }}
         value={displayValue}
-        onChange={(event) => {
-          const valueInput = valueInputRef.current;
-
-          if (!valueInput) return;
-
-          if (event.target.value === "") {
-            valueInput.value = "";
-            valueInput.dispatchEvent(new Event("change", { bubbles: true }));
-
-            return;
-          }
-
-          let newValue: string = toValue(event.target.value);
-
-          if (event.target.value === "-") {
-            newValue = String(0);
-          }
-
-          const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
-
-          if (!isNagative) {
-            newValue = newValue.replaceAll("-", "");
-          } else {
-            newValue = "-" + newValue.replaceAll("-", "");
-          }
-
-          let absoluteIntegerPart = String(
-            Math.abs(Number(newValue.split(".")[0]))
-          );
-
-          const decimalPart = newValue.split(".")[1];
-
-          if (
-            absoluteIntegerPart.length > 15 ||
-            (decimalPart && decimalPart.length > 15)
-          ) {
-            return;
-          }
-
-          newValue =
-            (isNagative ? "-" : "") +
-            (decimalPart === undefined
-              ? absoluteIntegerPart
-              : absoluteIntegerPart + "." + decimalPart);
-
-          if (isNaN(Number(toValue(newValue)))) {
-            return;
-          }
-
-          valueInput.value = newValue;
-          valueInput.dispatchEvent(new Event("change", { bubbles: true }));
-        }}
+        onChange={handleChangeDisplayInput}
         {...restProps}
       />
 
