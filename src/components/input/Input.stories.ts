@@ -9,6 +9,7 @@ const meta: Meta<typeof InputComponent> = {
     size: "medium",
     status: "normal",
     disabled: false,
+    textAlign: "left",
   },
   argTypes: {
     placeholder: { control: { type: "text" } },
@@ -26,6 +27,10 @@ const meta: Meta<typeof InputComponent> = {
     },
     height: {
       control: { type: "number", step: 50 },
+    },
+    textAlign: {
+      options: ["left", "center", "right"],
+      control: { type: "radio" },
     },
   },
 };
