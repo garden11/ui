@@ -81,6 +81,9 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
 
   useImperativeHandle(ref, () => {
     return {
+      get value() {
+        return valueInputRef.current?.value;
+      },
       focus() {
         displayInputRef.current?.focus();
       },
@@ -89,9 +92,6 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
       },
       select() {
         displayInputRef.current?.select();
-      },
-      get value() {
-        return valueInputRef.current?.value;
       },
     };
   }, []);
@@ -102,17 +102,17 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
 
       if (!valueInput) return;
 
-      if (event.target.value === "") {
-        valueInput.value = "";
-        valueInput.dispatchEvent(new Event("change", { bubbles: true }));
-
-        return;
-      }
-
       let newValue: string = toValue(event.target.value);
 
       if (event.target.value === "-") {
         newValue = String(0);
+      }
+
+      if (newValue === "") {
+        valueInput.value = newValue;
+        valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+        return;
       }
 
       const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
@@ -123,26 +123,16 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
         newValue = "-" + newValue.replaceAll("-", "");
       }
 
-      let absoluteIntegerPart = String(
-        Math.abs(Number(newValue.split(".")[0]))
-      );
-
-      const decimalPart = newValue.split(".")[1];
-
-      if (
-        absoluteIntegerPart.length > 15 ||
-        (decimalPart && decimalPart.length > 15)
-      ) {
-        return;
-      }
+      const [integerPart, decimalPart] = newValue.split(".");
+      const absoluteIntegerPart = Math.abs(Number(integerPart));
 
       newValue =
         (isNagative ? "-" : "") +
         (decimalPart === undefined
-          ? absoluteIntegerPart
-          : absoluteIntegerPart + "." + decimalPart);
+          ? `${absoluteIntegerPart}`
+          : `${absoluteIntegerPart}` + "." + decimalPart);
 
-      if (isNaN(Number(toValue(newValue)))) {
+      if (!isValidValue(newValue)) {
         return;
       }
 
@@ -186,6 +176,27 @@ const toDisplayValue = (value: string | number): string => {
 
 const toValue = (displayValue: string): string => {
   return removeThousandSeparators(displayValue);
+};
+
+const isValidValue = (value: string): boolean => {
+  if (value === "") {
+    return true;
+  }
+
+  const [integerPart, decimalPart] = value.split(".");
+
+  if (
+    integerPart.replace("-", "").length > 15 ||
+    (decimalPart && decimalPart.length > 15)
+  ) {
+    return false;
+  }
+
+  if (isNaN(Number(value))) {
+    return false;
+  }
+
+  return true;
 };
 
 const addThousandSeparators = (value: string): string => {
