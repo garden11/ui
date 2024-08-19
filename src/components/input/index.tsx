@@ -17,10 +17,11 @@ type Props = {
   size?: "small" | "medium" | "large";
   status?: "normal" | "error" | "warning";
   disabled?: boolean;
+  textAlign?: "left" | "center" | "right";
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "size">;
 
 const Input = forwardRef<HTMLInputElement, Props>(
-  ({ size = "medium", ...props }, ref) => {
+  ({ size = "medium", textAlign = "left", ...props }, ref) => {
     const [isFocused, setIsFocused] = useState<boolean>(false);
 
     const { onFocus, onBlur, ...restProps } = props;
@@ -31,6 +32,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
           width: props.width,
           height: props.height,
           size,
+          textAlign,
         })}
         className={cx({
           disabled: props.disabled,
@@ -63,10 +65,12 @@ const styles = {
     width,
     height,
     size,
+    textAlign,
   }: {
     width: PixelValue | undefined;
     height: PixelValue | undefined;
     size: "small" | "medium" | "large";
+    textAlign: "left" | "center" | "right";
   }) => css`
     display: inline-block;
 
@@ -137,6 +141,7 @@ const styles = {
     }
 
     > input {
+      text-align: ${textAlign};
       box-sizing: border-box;
       font-size: inherit;
       border: none;
