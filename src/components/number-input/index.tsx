@@ -158,7 +158,7 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
     <span>
       <Input
         ref={displayInputRef}
-        style={{ textAlign: "right" }}
+        textAlign="right"
         value={displayValue}
         onChange={handleChangeDisplayInput}
         {...restProps}
