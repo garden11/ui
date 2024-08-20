@@ -153,6 +153,7 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
             defaultValue: toDisplayValue(initialValue),
           })}
       onChange={handleChangeDisplayInput}
+      data-testid="input"
       {...restProps}
     />
   );
