@@ -221,3 +221,5 @@ const removeThousandSeparators = (value: string): string => {
 };
 
 export default NumberInput;
+
+export * from "./types";
