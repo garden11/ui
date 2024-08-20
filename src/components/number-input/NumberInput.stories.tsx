@@ -3,11 +3,10 @@ import { ComponentProps, useRef, useState } from "react";
 import { fn } from "@storybook/test";
 
 import Button from "../button";
-import NumberInputComponent from ".";
+import NumberInputComponent, { NumberInputHandle } from ".";
 import Stack from "../stack";
 
 import { spacing } from "src/utils/spacing";
-import { NumberInputHandle } from "./types";
 
 const meta: Meta<typeof NumberInputComponent> = {
   title: "components/NumberInput",
@@ -77,7 +76,7 @@ const ControlledStoryComponent = (
 const UncontrolledStoryComponent = (
   args: ComponentProps<typeof NumberInputComponent>
 ) => {
-  const inputRef = useRef<NumberInputHandle | null>(null);
+  const inputRef = useRef<NumberInputHandle>(null);
 
   const [value, setValue] = useState<string>();
 
