@@ -2,5 +2,6 @@ export type NumberInputHandle = {
   focus: () => void;
   scrollIntoView: () => void;
   select: () => void;
-  value: string | undefined;
+  get value(): string | undefined;
+  set value(value: string | undefined);
 };
