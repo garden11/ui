@@ -21,7 +21,7 @@ type PropsWithoutValue = { value?: never; defaultValue?: string | undefined };
 type PropsDefault = {
   size?: "small" | "medium" | "large";
   status?: "normal" | "warning" | "error";
-  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (value: string) => void;
   width?: PixelValue;
   height?: PixelValue;
   disabled?: boolean;
@@ -35,138 +35,111 @@ type Props = PropsDefault & (PropsWithValue | PropsWithoutValue);
 const NumberInput = forwardRef<Handle, Props>((props, ref) => {
   const isControlled = Object.hasOwn(props, "value");
 
-  const displayInputRef = useRef<HTMLInputElement>(null);
-  const valueInputRef = useRef<HTMLInputElement>(null);
-
-  const [displayValue, setDisplayValue] = useState<string>("");
-
-  useEffect(() => {
-    if (isControlled) return;
-
-    const valueInput = valueInputRef.current;
-
-    if (valueInput?.defaultValue) {
-      setDisplayValue(toDisplayValue(valueInput.defaultValue));
+  const initialValue = (() => {
+    if (isControlled) {
+      return props.value && isValidValue(props.value) ? props.value : "";
     } else {
-      setDisplayValue("");
+      return props.defaultValue && isValidValue(props.defaultValue)
+        ? props.defaultValue
+        : "";
     }
-  }, []);
+  })();
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const valueRef = useRef<string>(initialValue);
+
+  const [displayValue, setDisplayValue] = useState<string>(
+    toDisplayValue(initialValue)
+  );
 
   useEffect(() => {
     if (!isControlled) return;
 
-    const valueInput = valueInputRef.current;
+    const newValue = props.value ?? "";
 
-    if (!valueInput) return;
+    if (!isValidValue(newValue)) return;
 
-    valueInput.value = props.value ?? "";
-    valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+    valueRef.current = newValue;
+    setDisplayValue(toDisplayValue(newValue));
   }, [props.value]);
-
-  useEffect(() => {
-    const valueInput = valueInputRef.current;
-
-    if (!valueInput) return;
-
-    valueInput.addEventListener("change", (event) => {
-      props?.onChange?.(event as unknown as ChangeEvent<HTMLInputElement>);
-
-      setDisplayValue(
-        toDisplayValue(
-          (event as unknown as ChangeEvent<HTMLInputElement>).target.value
-        )
-      );
-    });
-  }, []);
 
   useImperativeHandle(ref, () => {
     return {
       get value() {
-        return valueInputRef.current?.value;
+        return valueRef.current;
       },
       focus() {
-        displayInputRef.current?.focus();
+        inputRef.current?.focus();
       },
       scrollIntoView() {
-        displayInputRef.current?.scrollIntoView();
+        inputRef.current?.scrollIntoView();
       },
       select() {
-        displayInputRef.current?.select();
+        inputRef.current?.select();
       },
     };
   }, []);
 
   const handleChangeDisplayInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const valueInput = valueInputRef.current;
-
-      if (!valueInput) return;
-
       let newValue: string = toValue(event.target.value);
 
       if (event.target.value === "-") {
         newValue = String(0);
       }
 
-      if (newValue === "") {
-        valueInput.value = newValue;
-        valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+      if (newValue !== "") {
+        const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
 
-        return;
+        if (!isNagative) {
+          newValue = newValue.replaceAll("-", "");
+        } else {
+          newValue = "-" + newValue.replaceAll("-", "");
+        }
+
+        const [integerPart, decimalPart] = newValue.split(".");
+        const absoluteIntegerPart = Math.abs(Number(integerPart));
+
+        newValue =
+          (isNagative ? "-" : "") +
+          (decimalPart === undefined
+            ? `${absoluteIntegerPart}`
+            : `${absoluteIntegerPart}` + "." + decimalPart);
       }
-
-      const isNagative = !((newValue.split("-").length - 1) % 2 === 0);
-
-      if (!isNagative) {
-        newValue = newValue.replaceAll("-", "");
-      } else {
-        newValue = "-" + newValue.replaceAll("-", "");
-      }
-
-      const [integerPart, decimalPart] = newValue.split(".");
-      const absoluteIntegerPart = Math.abs(Number(integerPart));
-
-      newValue =
-        (isNagative ? "-" : "") +
-        (decimalPart === undefined
-          ? `${absoluteIntegerPart}`
-          : `${absoluteIntegerPart}` + "." + decimalPart);
 
       if (!isValidValue(newValue)) {
         return;
       }
 
-      valueInput.value = newValue;
-      valueInput.dispatchEvent(new Event("change", { bubbles: true }));
+      if (isControlled) {
+        setDisplayValue(toDisplayValue(newValue));
+      } else {
+        if (!inputRef.current) return;
+
+        inputRef.current.value = toDisplayValue(newValue);
+      }
+
+      valueRef.current = newValue;
+
+      props.onChange?.(newValue);
     },
     []
   );
 
-  const { value, onChange, name, ...restProps } = props;
+  const { value, onChange, defaultValue, ...restProps } = props;
 
   return (
-    <span>
-      <Input
-        ref={displayInputRef}
-        textAlign="right"
-        value={displayValue}
-        onChange={handleChangeDisplayInput}
-        {...restProps}
-      />
-
-      <input
-        ref={valueInputRef}
-        name={name}
-        {...(!isControlled && {
-          defaultValue:
-            props.defaultValue && !isNaN(Number(props.defaultValue))
-              ? props.defaultValue
-              : undefined,
-        })}
-        readOnly
-        hidden
-      />
-    </span>
+    <Input
+      ref={inputRef}
+      textAlign="right"
+      {...(isControlled
+        ? { value: displayValue }
+        : {
+            defaultValue: initialValue,
+          })}
+      onChange={handleChangeDisplayInput}
+      {...restProps}
+    />
   );
 });
 
