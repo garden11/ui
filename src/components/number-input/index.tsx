@@ -135,7 +135,7 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
       {...(isControlled
         ? { value: displayValue }
         : {
-            defaultValue: initialValue,
+            defaultValue: toDisplayValue(initialValue),
           })}
       onChange={handleChangeDisplayInput}
       {...restProps}
