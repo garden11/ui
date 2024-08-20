@@ -64,10 +64,10 @@ const ControlledStoryComponent = (
     <NumberInputComponent
       {...restArgs}
       value={value}
-      onChange={(event) => {
-        onChange?.(event);
+      onChange={(value) => {
+        onChange?.(value);
 
-        setValue(event.target.value);
+        setValue(value);
       }}
     />
   );
