@@ -68,6 +68,21 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
       get value() {
         return valueRef.current;
       },
+      set value(value: string | undefined) {
+        const newValue = value ?? "";
+
+        if (!isValidValue(newValue)) return;
+
+        valueRef.current = newValue;
+
+        if (isControlled) {
+          setDisplayValue(toDisplayValue(newValue));
+        } else {
+          if (!inputRef.current) return;
+
+          inputRef.current.value = toDisplayValue(newValue);
+        }
+      },
       focus() {
         inputRef.current?.focus();
       },
@@ -138,6 +153,7 @@ const NumberInput = forwardRef<Handle, Props>((props, ref) => {
             defaultValue: toDisplayValue(initialValue),
           })}
       onChange={handleChangeDisplayInput}
+      data-testid="input"
       {...restProps}
     />
   );
